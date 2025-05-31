@@ -1,16 +1,38 @@
 package com.barbu.fleetmanagement.manager.domain;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
-import jakarta.persistence.Entity;
 import java.time.LocalDateTime;
 
-@Entity
-public class Driver extends PanacheEntity {
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
+@Entity
+@Table(name = "driver")
+public class Driver extends PanacheEntityBase {
+
+  @Id
+  @GeneratedValue
+  @Column(name="id")
+  private Long id;
+  @Column(name = "first_name")
   private String firstName;
+  @Column(name = "last_name")
   private String lastName;
+  @Column(name = "identification_number")
   private String identificationNumber;
+  @Column(name = "birth_date")
   private LocalDateTime birthDate;
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
 
   public String getFirstName() {
     return firstName;

@@ -1,17 +1,40 @@
 package com.barbu.fleetmanagement.manager.domain;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
-public class Trip extends PanacheEntity {
+@Table(name = "trip")
+public class Trip extends PanacheEntityBase {
 
+  @Id
+  @GeneratedValue
+  @Column(name="id")
+  private Long id;
+  @Column(name="latitude_start")
   private double latitudeStart;
+  @Column(name="longitude_start")
   private double longitudeStart;
+  @Column(name="latitude_destination")
   private double latitudeDestination;
+  @Column(name="longitude_destination")
   private double longitudeDestination;
+  @Column(name="driver_id")
   private Long driverId;
+  @Column(name="car_id")
   private Long carId;
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
 
   public double getLatitudeStart() {
     return latitudeStart;

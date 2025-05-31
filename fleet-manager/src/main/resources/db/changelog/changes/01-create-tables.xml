@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="1" author="barbu">
+        <createTable tableName="car">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="model" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="brand" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="colour" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="plate_number" type="text">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2" author="barbu">
+        <createTable tableName="driver">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="first_name" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_name" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="identification_number" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="birth_date" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="3" author="barbu">
+        <createTable tableName="trip">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="latitude_start" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="longitude_start" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="latitude_destination" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="longitude_destination" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="driver_id" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_trip_driver" references="driver(id)"/>
+            </column>
+            <column name="car_id" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_trip_car" references="car(id)"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

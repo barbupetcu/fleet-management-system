@@ -1,15 +1,37 @@
 package com.barbu.fleetmanagement.manager.domain;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
-public class Car extends PanacheEntity {
+@Table(name = "car")
+public class Car extends PanacheEntityBase {
 
+  @Id
+  @GeneratedValue
+  @Column(name="id")
+  private Long id;
+
+  @Column(name = "model")
   private String model;
+  @Column(name = "brand")
   private String brand;
+  @Column(name = "colour")
   private String colour;
+  @Column(name = "plate_number")
   private String plateNumber;
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
 
   public String getModel() {
     return model;
