@@ -11,6 +11,8 @@ import io.smallrye.reactive.messaging.kafka.api.OutgoingKafkaRecordMetadata;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import org.apache.kafka.common.header.Headers;
+import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.reactive.messaging.Message;
@@ -31,11 +33,18 @@ public class PanacheTripService implements TripService {
         TripEntity tripEntity = tripMapper.to(trip);
         save(tripEntity);
         Trip savedTrip = tripMapper.from(tripEntity);
+        publishTripCreatedEvent(savedTrip);
+        return savedTrip;
+    }
+
+    private void publishTripCreatedEvent(Trip savedTrip) {
+        Headers headers = new RecordHeaders();
+        headers.add("eventType", "trip.created".getBytes());
         OutgoingKafkaRecordMetadata<String> metadata = OutgoingKafkaRecordMetadata.<String> builder()
                 .withKey(savedTrip.driverId().toString())
+                .withHeaders(headers)
                 .build();
         tripEmitter.send(Message.of(savedTrip).addMetadata(metadata));
-        return savedTrip;
     }
 
     private static void save(TripEntity tripEntity) {
