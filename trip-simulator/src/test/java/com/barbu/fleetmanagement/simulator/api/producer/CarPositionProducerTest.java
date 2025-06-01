@@ -74,7 +74,7 @@ class CarPositionProducerTest {
         assertEquals(timestamp, carPosition.timestamp());
 
         OutgoingKafkaRecordMetadata<String> metadata = capturedMessage.getMetadata(OutgoingKafkaRecordMetadata.class).orElseThrow();
-        assertEquals(tripId.toString(), metadata.getKey());
+        assertEquals(driverId.toString(), metadata.getKey());
 
         Headers headers = metadata.getHeaders();
         Iterator<Header> iterator = headers.iterator();

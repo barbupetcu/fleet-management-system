@@ -3,6 +3,7 @@ package com.barbu.fleetmanagement.penaltypoints.application.service;
 import com.barbu.fleetmanagement.common.geo.GeoCalculator;
 import com.barbu.fleetmanagement.common.model.CarPosition;
 import com.barbu.fleetmanagement.penaltypoints.domain.CarSpeed;
+import com.barbu.fleetmanagement.penaltypoints.domain.SpeedInterval;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -4,26 +4,20 @@ import com.barbu.fleetmanagement.common.model.CarPosition;
 import com.barbu.fleetmanagement.penaltypoints.application.service.SpeedCalculatorService;
 import com.barbu.fleetmanagement.penaltypoints.domain.CarSpeed;
 import com.barbu.fleetmanagement.penaltypoints.domain.DriverPenaltyPoints;
+import com.barbu.fleetmanagement.penaltypoints.domain.PenaltyPoints;
 import com.barbu.fleetmanagement.penaltypoints.domain.SpeedInterval;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.Grouped;
-import org.apache.kafka.streams.kstream.JoinWindows;
-import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.Materialized;
-import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import java.time.Duration;
 import java.util.Optional;
 
 /**
@@ -37,9 +31,10 @@ public class PenaltyPointsTopology {
     @Inject
     SpeedCalculatorService speedCalculatorService;
 
+    @ConfigProperty(name = "driver.penalty.points.topic")
+    String driverPenaltyPointsTopic;
     @ConfigProperty(name = "penalty.points.topic")
     String penaltyPointsTopic;
-
 
     /**
      * Produces the Kafka Streams topology.
@@ -55,61 +50,51 @@ public class PenaltyPointsTopology {
         );
 
         // Calculate speed for each car position if the car has moved at least 1 km
-        KStream<String, CarSpeed> carSpeeds = carPositions
+        carPositions
                 .mapValues(carPosition -> speedCalculatorService.calculateCarSpeed(carPosition))
-                .filter((key, speed) -> speed.isPresent())
-                .mapValues(Optional::get);
-
-        // Calculate penalty points based on speed
-        KStream<String, Integer> penaltyPoints = carSpeeds
-                .mapValues(speed -> SpeedInterval.getInterval(speed.getSpeedKmh().doubleValue()))
-                .filter((key, speedInterval) -> speedInterval.isPresent())
+                .filter((_, speed) -> speed.isPresent())
                 .mapValues(Optional::get)
-                .mapValues(SpeedInterval::getPenaltyPointsPerKm);
-
-        // Change key from trip ID to driver ID for accumulating points by driver
-        // Create a pair of driver ID and points
-        joinCardSpeedsWithPenaltyPoints(carSpeeds, penaltyPoints);
+                .filter((_, speed) -> SpeedInterval.getInterval(speed.getSpeedKmh().doubleValue()).isPresent())
+                .mapValues((_, carSpeed) -> mapToPenaltyPoints(carSpeed))
+                //publish an event for each penalty 
+                .repartition(Repartitioned.with(Serdes.String(), SerdesFactory.penaltyPointsSerde()).withName(penaltyPointsTopic))
+                .groupByKey(Grouped.with(Serdes.String(), SerdesFactory.penaltyPointsSerde()))
+                .aggregate(
+                        DriverPenaltyPoints::new,
+                        this::aggregate,
+                        getDriverPointsStore()
+                )
+                .toStream()
+                //publish events when penalty points of the driver have changed
+                .to(driverPenaltyPointsTopic, Produced.with(Serdes.String(), SerdesFactory.driverPenaltyPointsSerde()));
 
         return builder.build();
     }
 
-    private void joinCardSpeedsWithPenaltyPoints(KStream<String, CarSpeed> carSpeeds, KStream<String, Integer> penaltyPoints) {
-        carSpeeds
-                .join(
-                        penaltyPoints,
-                        DriverPoints::new,
-                        JoinWindows.ofTimeDifferenceWithNoGrace(Duration.ofMillis(100))
-                )
-                .selectKey((key, driverPoints) -> driverPoints.driverId)
-                .mapValues(driverPoints -> driverPoints.points)
-                .groupByKey(
-                        Grouped.with(Serdes.String(), Serdes.Integer())
-                )
-                .aggregate(
-                        DriverPenaltyPoints::new,
-                        (key, points, aggregate) -> {
-                            if (aggregate.getDriverId() == null) {
-                                aggregate.setDriverId(Long.valueOf(key));
-                            }
-                            return aggregate.addPoints(points);
-                        },
-                        Materialized.<String, DriverPenaltyPoints, KeyValueStore<Bytes, byte[]>>as("driver-points-store")
-                                .withKeySerde(Serdes.String())
-                                .withValueSerde(SerdesFactory.driverPenaltyPointsSerde())
-                )
-                .toStream()
-                .to(penaltyPointsTopic, Produced.with(Serdes.String(), SerdesFactory.driverPenaltyPointsSerde()));
+    private static Materialized<String, DriverPenaltyPoints, KeyValueStore<Bytes, byte[]>> getDriverPointsStore() {
+        return Materialized.<String, DriverPenaltyPoints, KeyValueStore<Bytes, byte[]>>as("driver-points-store")
+                .withKeySerde(Serdes.String())
+                .withValueSerde(SerdesFactory.driverPenaltyPointsSerde());
     }
 
-    @Getter
-    private static class DriverPoints {
-        private final String driverId;
-        private final int points;
+    private static PenaltyPoints mapToPenaltyPoints(CarSpeed carSpeed) {
+        return PenaltyPoints.builder()
+                .driverId(carSpeed.getDriverId())
+                .carId(carSpeed.getCarId())
+                .tripId(carSpeed.getTripId())
+                .penaltyTime(carSpeed.getCurrentTimestamp())
+                .penaltyPoints(
+                        SpeedInterval.getInterval(carSpeed.getSpeedKmh().doubleValue())
+                                .map(SpeedInterval::getPenaltyPointsPerKm)
+                                .orElse(0)
+                )
+                .build();
+    }
 
-        private DriverPoints(CarSpeed carSpeed, Integer points) {
-            this.driverId = carSpeed.getDriverId().toString();
-            this.points = points;
+    private DriverPenaltyPoints aggregate(String driverId, PenaltyPoints penaltyPoints, DriverPenaltyPoints driverPenaltyPoints) {
+        if (driverPenaltyPoints.getDriverId() == null) {
+            driverPenaltyPoints.setDriverId(Long.parseLong(driverId));
         }
+        return driverPenaltyPoints.addPenaltyPoint(penaltyPoints.penaltyPoints());
     }
 }

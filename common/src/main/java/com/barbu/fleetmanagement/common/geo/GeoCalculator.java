@@ -52,9 +52,9 @@ public class GeoCalculator {
 
         // Interpolate between start and destination
         BigDecimal newLat = start.latitude().add(
-                destination.latitude().subtract(start.latitude()).multiply(fraction));
+                destination.latitude().subtract(start.latitude()).multiply(fraction), MATH_CONTEXT);
         BigDecimal newLon = start.longitude().add(
-                destination.longitude().subtract(start.longitude()).multiply(fraction));
+                destination.longitude().subtract(start.longitude()).multiply(fraction), MATH_CONTEXT);
 
         return new Location(newLat, newLon);
     }
