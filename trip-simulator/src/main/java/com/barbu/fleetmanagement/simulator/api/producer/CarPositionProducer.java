@@ -1,6 +1,6 @@
 package com.barbu.fleetmanagement.simulator.api.producer;
 
-import com.barbu.fleetmanagement.simulator.api.producer.model.CarPosition;
+import com.barbu.fleetmanagement.common.model.CarPosition;
 import com.barbu.fleetmanagement.simulator.domain.CarPositionDetails;
 import io.smallrye.reactive.messaging.kafka.api.OutgoingKafkaRecordMetadata;
 import jakarta.enterprise.context.ApplicationScoped;

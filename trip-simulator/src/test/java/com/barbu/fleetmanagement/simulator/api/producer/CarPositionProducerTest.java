@@ -1,7 +1,7 @@
 package com.barbu.fleetmanagement.simulator.api.producer;
 
-import com.barbu.fleetmanagement.simulator.api.consumer.model.Location;
-import com.barbu.fleetmanagement.simulator.api.producer.model.CarPosition;
+import com.barbu.fleetmanagement.common.model.CarPosition;
+import com.barbu.fleetmanagement.common.model.Location;
 import com.barbu.fleetmanagement.simulator.domain.CarPositionDetails;
 import io.smallrye.reactive.messaging.kafka.api.OutgoingKafkaRecordMetadata;
 import org.apache.kafka.common.header.Header;
@@ -67,11 +67,11 @@ class CarPositionProducerTest {
         Message<CarPosition> capturedMessage = messageCaptor.getValue();
         CarPosition carPosition = capturedMessage.getPayload();
 
-        assertEquals(carId, carPosition.getCarId());
-        assertEquals(driverId, carPosition.getDriverId());
-        assertEquals(tripId, carPosition.getTripId());
-        assertEquals(currentLocation, carPosition.getCurrentLocation());
-        assertEquals(timestamp, carPosition.getTimestamp());
+        assertEquals(carId, carPosition.carId());
+        assertEquals(driverId, carPosition.driverId());
+        assertEquals(tripId, carPosition.tripId());
+        assertEquals(currentLocation, carPosition.currentLocation());
+        assertEquals(timestamp, carPosition.timestamp());
 
         OutgoingKafkaRecordMetadata<String> metadata = capturedMessage.getMetadata(OutgoingKafkaRecordMetadata.class).orElseThrow();
         assertEquals(driverId.toString(), metadata.getKey());

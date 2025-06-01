@@ -10,6 +10,7 @@
   <modules>
     <module>fleet-manager</module>
     <module>trip-simulator</module>
+    <module>common</module>
   </modules>
 
   <properties>
@@ -52,6 +53,11 @@
         <version>${testcontainers.version}</version>
         <type>pom</type>
         <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.barbu</groupId>
+        <artifactId>common</artifactId>
+        <version>${project.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

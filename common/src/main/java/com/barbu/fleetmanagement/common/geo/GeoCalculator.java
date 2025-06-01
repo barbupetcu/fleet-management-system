@@ -1,15 +1,13 @@
-package com.barbu.fleetmanagement.simulator.application.service;
+package com.barbu.fleetmanagement.common.geo;
 
-import com.barbu.fleetmanagement.simulator.api.consumer.model.Location;
-import jakarta.enterprise.context.ApplicationScoped;
+import com.barbu.fleetmanagement.common.model.Location;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
-@ApplicationScoped
 public class GeoCalculator {
-    private static final int EARTH_RADIUS_KM = 6371; // Earth radius in kilometers
+    private static final int EARTH_RADIUS_KM = 6371;
     public static final MathContext MATH_CONTEXT = new MathContext(10, RoundingMode.HALF_UP);
 
     /**
@@ -39,7 +37,7 @@ public class GeoCalculator {
     public Location calculateNewPosition(Location start, Location destination, BigDecimal distanceToMoveKm) {
         BigDecimal totalDistanceKm = calculateDistanceInKm(start, destination);
 
-        // If we're very close to the destination, just return the destination
+        // If the care is very close to the destination, just return the destination
         if (totalDistanceKm.compareTo(new BigDecimal("0.1")) < 0) {
             return destination;
         }

@@ -1,7 +1,8 @@
 package com.barbu.fleetmanagement.simulator.application.service;
 
-import com.barbu.fleetmanagement.simulator.api.consumer.model.Location;
-import com.barbu.fleetmanagement.simulator.api.consumer.model.Trip;
+import com.barbu.fleetmanagement.common.geo.GeoCalculator;
+import com.barbu.fleetmanagement.common.model.Location;
+import com.barbu.fleetmanagement.common.model.Trip;
 import com.barbu.fleetmanagement.simulator.domain.CarPositionDetails;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;

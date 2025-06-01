@@ -1,6 +1,6 @@
 package com.barbu.fleetmanagement.manager.api.resource;
 
-import com.barbu.fleetmanagement.manager.api.model.Trip;
+import com.barbu.fleetmanagement.common.model.Trip;
 import com.barbu.fleetmanagement.manager.application.service.TripService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;

@@ -14,7 +14,7 @@ public class IntegrationTestResource implements QuarkusTestResourceLifecycleMana
             DockerImageName.parse("postgres")
                     .withTag("17.4")
     );
-    private final ConfluentKafkaContainer kafka = new ConfluentKafkaContainer("confluentinc/cp-kafka:7.9.0");
+    private final ConfluentKafkaContainer kafka = new ConfluentKafkaContainer("confluentinc/cp-kafka:7.8.0");
 
 
     @Override

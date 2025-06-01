@@ -1,6 +1,6 @@
 package com.barbu.fleetmanagement.simulator.application.service;
 
-import com.barbu.fleetmanagement.simulator.api.consumer.model.Trip;
+import com.barbu.fleetmanagement.common.model.Trip;
 import com.barbu.fleetmanagement.simulator.api.producer.CarPositionProducer;
 import com.barbu.fleetmanagement.simulator.domain.CarPositionDetails;
 import com.barbu.fleetmanagement.simulator.domain.CarPositionRepository;

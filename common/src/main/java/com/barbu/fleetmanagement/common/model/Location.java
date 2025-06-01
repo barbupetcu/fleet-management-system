@@ -1,4 +1,4 @@
-package com.barbu.fleetmanagement.manager.api.model;
+package com.barbu.fleetmanagement.common.model;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

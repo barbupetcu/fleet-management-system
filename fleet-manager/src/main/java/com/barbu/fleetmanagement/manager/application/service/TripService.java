@@ -1,6 +1,6 @@
 package com.barbu.fleetmanagement.manager.application.service;
 
-import com.barbu.fleetmanagement.manager.api.model.Trip;
+import com.barbu.fleetmanagement.common.model.Trip;
 
 public interface TripService {
 

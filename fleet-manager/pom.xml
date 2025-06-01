@@ -13,6 +13,10 @@
 
   <dependencies>
     <dependency>
+      <groupId>com.barbu</groupId>
+      <artifactId>common</artifactId>
+    </dependency>
+    <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-rest</artifactId>
     </dependency>

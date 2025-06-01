@@ -1,7 +1,7 @@
 package com.barbu.fleetmanagement.manager.application.mapper;
 
-import com.barbu.fleetmanagement.manager.api.model.Location;
-import com.barbu.fleetmanagement.manager.api.model.Trip;
+import com.barbu.fleetmanagement.common.model.Location;
+import com.barbu.fleetmanagement.common.model.Trip;
 import com.barbu.fleetmanagement.manager.domain.TripEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 

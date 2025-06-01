@@ -1,6 +1,6 @@
 package com.barbu.fleetmanagement.simulator.api.consumer;
 
-import com.barbu.fleetmanagement.simulator.api.consumer.model.Trip;
+import com.barbu.fleetmanagement.common.model.Trip;
 import com.barbu.fleetmanagement.simulator.application.service.TripSimulatorService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

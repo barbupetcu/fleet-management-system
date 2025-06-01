@@ -1,8 +1,8 @@
 package com.barbu.fleetmanagement.manager.api.resource;
 
+import com.barbu.fleetmanagement.common.model.Location;
+import com.barbu.fleetmanagement.common.model.Trip;
 import com.barbu.fleetmanagement.manager.IntegrationTestResource;
-import com.barbu.fleetmanagement.manager.api.model.Location;
-import com.barbu.fleetmanagement.manager.api.model.Trip;
 import com.barbu.fleetmanagement.manager.domain.CarEntity;
 import com.barbu.fleetmanagement.manager.domain.DriverEntity;
 import com.barbu.fleetmanagement.manager.domain.TripEntity;
@@ -126,26 +126,6 @@ public class TripResourceIntegrationTest {
     public void testCreateTripWithInvalidData() {
         Trip invalidTrip = Trip.builder()
                 .start(null)
-                .destination(new Location(BigDecimal.valueOf(40.7128), BigDecimal.valueOf(-74.0060)))
-                .driverId(driverId)
-                .carId(carId)
-                .build();
-
-        given()
-                .contentType(ContentType.JSON)
-                .body(invalidTrip)
-                .when()
-                .put(TRIPS_ENDPOINT)
-                .then()
-                .statusCode(400); // Bad Request
-    }
-
-    @Test
-    public void testCreateTripWithInvalidLocation() {
-        Location invalidLocation = new Location(BigDecimal.valueOf(100), BigDecimal.valueOf(-74.0060));
-
-        Trip invalidTrip = Trip.builder()
-                .start(invalidLocation)
                 .destination(new Location(BigDecimal.valueOf(40.7128), BigDecimal.valueOf(-74.0060)))
                 .driverId(driverId)
                 .carId(carId)

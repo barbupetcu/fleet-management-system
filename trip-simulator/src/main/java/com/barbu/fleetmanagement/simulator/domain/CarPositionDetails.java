@@ -1,6 +1,6 @@
 package com.barbu.fleetmanagement.simulator.domain;
 
-import com.barbu.fleetmanagement.simulator.api.consumer.model.Location;
+import com.barbu.fleetmanagement.common.model.Location;
 import lombok.Builder;
 import lombok.Getter;
 

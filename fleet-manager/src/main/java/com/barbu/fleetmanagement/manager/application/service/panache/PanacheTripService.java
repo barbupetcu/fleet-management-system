@@ -1,9 +1,9 @@
 package com.barbu.fleetmanagement.manager.application.service.panache;
 
+import com.barbu.fleetmanagement.common.model.Trip;
 import com.barbu.fleetmanagement.manager.api.exception.CarNotFoundException;
 import com.barbu.fleetmanagement.manager.api.exception.DriverNotFoundException;
 import com.barbu.fleetmanagement.manager.api.exception.TripNotFoundException;
-import com.barbu.fleetmanagement.manager.api.model.Trip;
 import com.barbu.fleetmanagement.manager.application.mapper.TripMapper;
 import com.barbu.fleetmanagement.manager.application.service.TripService;
 import com.barbu.fleetmanagement.manager.domain.TripEntity;
