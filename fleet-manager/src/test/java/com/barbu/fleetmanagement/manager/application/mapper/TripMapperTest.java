@@ -51,8 +51,10 @@ public class TripMapperTest {
         BigDecimal destLongitude = new BigDecimal("-118.2437");
         Long driverId = 1L;
         Long carId = 2L;
+        Long id = 3L;
 
         TripEntity tripEntity = TripEntity.builder()
+                .id(id)
                 .latitudeStart(startLatitude)
                 .longitudeStart(startLongitude)
                 .latitudeDestination(destLatitude)
@@ -64,6 +66,7 @@ public class TripMapperTest {
         Trip trip = tripMapper.from(tripEntity);
 
         assertThat(trip)
+                .returns(id, Trip::id)
                 .returns(driverId, Trip::driverId)
                 .returns(carId, Trip::carId);
 

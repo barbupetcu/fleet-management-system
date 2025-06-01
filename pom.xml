@@ -9,6 +9,7 @@
 
   <modules>
     <module>fleet-manager</module>
+    <module>trip-simulator</module>
   </modules>
 
   <properties>

@@ -21,6 +21,7 @@ public class TripMapper {
 
     public Trip from(TripEntity entity) {
         return Trip.builder()
+                .id(entity.getId())
                 .start(new Location(entity.getLatitudeStart(), entity.getLongitudeStart()))
                 .destination(new Location(entity.getLatitudeDestination(), entity.getLongitudeDestination()))
                 .driverId(entity.getDriverId())

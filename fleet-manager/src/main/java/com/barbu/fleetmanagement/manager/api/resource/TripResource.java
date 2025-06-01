@@ -28,4 +28,6 @@ public class TripResource {
         return panacheTripService.findTrip(id);
     }
 
+    //TODO add delete trip endpoint which should emit an event trip.cancelled event which should stop the trip in trip-simulator service?
+
 }
