@@ -8,10 +8,14 @@ import com.barbu.fleetmanagement.manager.api.model.Trip;
 import com.barbu.fleetmanagement.manager.application.mapper.TripMapper;
 import com.barbu.fleetmanagement.manager.domain.TripEntity;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import org.eclipse.microprofile.reactive.messaging.Emitter;
+import org.eclipse.microprofile.reactive.messaging.Message;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
@@ -20,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -28,12 +33,14 @@ class PanacheTripServiceTest {
 
     @Mock
     private TripMapper tripMapper;
-    
     @Mock
     private TripEntity tripEntity;
-    
     @Mock
     private Trip trip;
+    @Mock
+    private Emitter<Trip> tripEmitter;
+    @Captor
+    private ArgumentCaptor<Message<Trip>> tripMessageCaptor;
     
     @InjectMocks
     private PanacheTripService service;
@@ -46,6 +53,7 @@ class PanacheTripServiceTest {
             when(tripMapper.to(trip)).thenReturn(tripEntity);
             
             Trip mappedTrip = mock(Trip.class);
+            when(mappedTrip.driverId()).thenReturn(1L);
             when(tripMapper.from(tripEntity)).thenReturn(mappedTrip);
             
             Trip result = service.createTrip(trip);
@@ -53,6 +61,10 @@ class PanacheTripServiceTest {
             assertEquals(mappedTrip, result);
             verify(tripEntity).persistAndFlush();
             verify(tripMapper).from(tripEntity);
+
+            verify(tripEmitter).send(tripMessageCaptor.capture());
+            assertThat(tripMessageCaptor.getValue())
+                    .returns(mappedTrip, Message::getPayload);
         }
         
         @Test

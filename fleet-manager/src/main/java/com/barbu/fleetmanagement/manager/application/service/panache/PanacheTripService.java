@@ -7,23 +7,35 @@ import com.barbu.fleetmanagement.manager.api.model.Trip;
 import com.barbu.fleetmanagement.manager.application.mapper.TripMapper;
 import com.barbu.fleetmanagement.manager.application.service.TripService;
 import com.barbu.fleetmanagement.manager.domain.TripEntity;
+import io.smallrye.reactive.messaging.kafka.api.OutgoingKafkaRecordMetadata;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.eclipse.microprofile.reactive.messaging.Emitter;
+import org.eclipse.microprofile.reactive.messaging.Message;
 import org.hibernate.exception.ConstraintViolationException;
 
 @Transactional
 @ApplicationScoped
-@RequiredArgsConstructor
 public class PanacheTripService implements TripService {
 
-    private final TripMapper tripMapper;
+    @Inject
+    TripMapper tripMapper;
+    @Inject
+    @Channel("trip")
+    Emitter<Trip> tripEmitter;
 
     @Override
     public Trip createTrip(Trip trip) {
         TripEntity tripEntity = tripMapper.to(trip);
         save(tripEntity);
-        return tripMapper.from(tripEntity);
+        Trip savedTrip = tripMapper.from(tripEntity);
+        OutgoingKafkaRecordMetadata<String> metadata = OutgoingKafkaRecordMetadata.<String> builder()
+                .withKey(savedTrip.driverId().toString())
+                .build();
+        tripEmitter.send(Message.of(savedTrip).addMetadata(metadata));
+        return savedTrip;
     }
 
     private static void save(TripEntity tripEntity) {
