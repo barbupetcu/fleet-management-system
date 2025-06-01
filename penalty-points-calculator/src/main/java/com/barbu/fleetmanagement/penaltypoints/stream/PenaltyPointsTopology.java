@@ -22,22 +22,58 @@ import java.util.Optional;
 
 /**
  * Kafka Streams topology for calculating penalty points based on car speeds.
+ * <p>
+ * This class defines a Kafka Streams processing topology that:
+ * <ol>
+ *   <li>Consumes car position events from a Kafka topic</li>
+ *   <li>Calculates car speeds using the SpeedCalculatorService</li>
+ *   <li>Filters out speeds that don't qualify for penalty points</li>
+ *   <li>Assigns penalty points based on speed intervals</li>
+ *   <li>Publishes individual penalty point events</li>
+ *   <li>Aggregates penalty points by driver</li>
+ *   <li>Publishes driver penalty point totals when they change</li>
+ * </ol>
+ * <p>
+ * The topology maintains a state store to track the accumulated penalty points for each driver.
  */
 @Slf4j
 @ApplicationScoped
 public class PenaltyPointsTopology {
 
-
     @Inject
     SpeedCalculatorService speedCalculatorService;
 
+    /**
+     * The name of the Kafka topic where driver penalty point totals are published.
+     * This topic receives events when a driver's total penalty points change.
+     */
     @ConfigProperty(name = "driver.penalty.points.topic")
     String driverPenaltyPointsTopic;
+
+    /**
+     * The name of the Kafka topic where individual penalty point events are published.
+     * This topic receives an event each time penalty points are assigned.
+     */
     @ConfigProperty(name = "penalty.points.topic")
     String penaltyPointsTopic;
 
     /**
      * Produces the Kafka Streams topology.
+     * <p>
+     * This method builds a Kafka Streams processing topology that:
+     * <ol>
+     *   <li>Creates a stream from the car position topic</li>
+     *   <li>Calculates speeds for each car position using the SpeedCalculatorService</li>
+     *   <li>Filters out positions where speed couldn't be calculated (car hasn't moved enough)</li>
+     *   <li>Filters out speeds that don't fall within defined penalty intervals</li>
+     *   <li>Maps speed data to penalty points based on the speed intervals</li>
+     *   <li>Publishes individual penalty point events to the penalty points topic</li>
+     *   <li>Groups penalty points by driver ID</li>
+     *   <li>Aggregates penalty points for each driver in a state store</li>
+     *   <li>Publishes driver penalty point totals to the driver penalty points topic</li>
+     * </ol>
+     *
+     * @return A configured Kafka Streams Topology ready for execution
      */
     @Produces
     public Topology buildTopology() {
@@ -71,6 +107,19 @@ public class PenaltyPointsTopology {
         return builder.build();
     }
 
+    /**
+     * Creates a materialized state store configuration for storing driver penalty points.
+     * <p>
+     * This method configures a persistent key-value store that:
+     * <ul>
+     *   <li>Uses driver ID as the key (as a String)</li>
+     *   <li>Stores DriverPenaltyPoints objects as values</li>
+     * </ul>
+     * The state store is used by the Kafka Streams aggregation operation to maintain
+     * the running total of penalty points for each driver.
+     *
+     * @return A configured Materialized instance for the driver points state store
+     */
     private static Materialized<String, DriverPenaltyPoints, KeyValueStore<Bytes, byte[]>> getDriverPointsStore() {
         return Materialized.<String, DriverPenaltyPoints, KeyValueStore<Bytes, byte[]>>as("driver-points-store")
                 .withKeySerde(Serdes.String())
@@ -91,6 +140,24 @@ public class PenaltyPointsTopology {
                 .build();
     }
 
+    /**
+     * Aggregates penalty points for a driver.
+     * <p>
+     * This method is used as the aggregator function in the Kafka Streams aggregation operation.
+     * It performs the following:
+     * <ol>
+     *   <li>If this is the first penalty for a driver, initializes the driver ID</li>
+     *   <li>Adds the new penalty points to the driver's running total</li>
+     *   <li>Updates the last updated timestamp</li>
+     * </ol>
+     * The method is called by Kafka Streams for each new penalty point event for a driver,
+     * allowing the system to maintain a running total of penalty points.
+     *
+     * @param driverId The ID of the driver (as a String, used as the key in the state store)
+     * @param penaltyPoints The new penalty points to add
+     * @param driverPenaltyPoints The current accumulated penalty points for the driver (or a new instance if none exist)
+     * @return The updated DriverPenaltyPoints object with the new points added
+     */
     private DriverPenaltyPoints aggregate(String driverId, PenaltyPoints penaltyPoints, DriverPenaltyPoints driverPenaltyPoints) {
         if (driverPenaltyPoints.getDriverId() == null) {
             driverPenaltyPoints.setDriverId(Long.parseLong(driverId));
