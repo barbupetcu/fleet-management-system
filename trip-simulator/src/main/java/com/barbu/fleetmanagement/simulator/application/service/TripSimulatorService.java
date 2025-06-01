@@ -39,7 +39,7 @@ public class TripSimulatorService {
      * @param trip The trip to simulate
      */
     public void startTripSimulation(Trip trip) {
-        CarPosition initialPosition = CarPosition.createInitialPosition(trip, trip.id());
+        CarPosition initialPosition = carMover.moveToInitialPosition(trip);
         carPositionRepository.save(initialPosition);
         //TODO schedule position updates using a persisted scheduler(Quartz, Schedlock, etc)
         scheduler.schedule(() -> updatePosition(trip.id()), INTERVAL_SECONDS, TimeUnit.SECONDS);

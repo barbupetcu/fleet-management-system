@@ -1,7 +1,8 @@
 package com.barbu.fleetmanagement.simulator.application.service;
 
-import com.barbu.fleetmanagement.simulator.domain.CarPosition;
 import com.barbu.fleetmanagement.simulator.api.consumer.model.Location;
+import com.barbu.fleetmanagement.simulator.api.consumer.model.Trip;
+import com.barbu.fleetmanagement.simulator.domain.CarPosition;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,13 +11,31 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.Random;
 
 @Slf4j
 @ApplicationScoped
 @RequiredArgsConstructor
 public class CarMover {
 
+
+    private final static Random random = new Random();
+    private final static int MINIMUM_SPED_KM_H = 10;
+    private final static int MAXIMUM_SPED_KM_H = 100;
+
     private final GeoCalculator geoCalculator;
+
+    public CarPosition moveToInitialPosition(Trip trip) {
+        return CarPosition.builder()
+                .carId(trip.carId())
+                .driverId(trip.driverId())
+                .tripId(trip.id())
+                .currentLocation(trip.start())
+                .destination(trip.destination())
+                .speedKmPerHour(generateSpeedKmPerHour()) // Default speed 60 km/h
+                .timestamp(Instant.now())
+                .build();
+    }
 
     public Optional<CarPosition> move(CarPosition position) {
 
@@ -38,8 +57,8 @@ public class CarMover {
         // Check if the car has reached the destination
         BigDecimal remainingDistance = geoCalculator.calculateDistanceInKm(newLocation, position.getDestination());
         boolean completed = remainingDistance.compareTo(new BigDecimal("0.1")) < 0;
-        log.info("Updating position for trip {}: {}, remaining distance: {} km, completed: {}",
-                position.getTripId(), newLocation, remainingDistance, completed);
+        log.info("Updating position for trip {}: {}, remaining distance: {} km, actual speed: {}, completed: {}",
+                position.getTripId(), newLocation, remainingDistance, position.getSpeedKmPerHour(), completed);
         if (completed) {
             return Optional.empty();
         } else {
@@ -49,9 +68,13 @@ public class CarMover {
                     .tripId(position.getTripId())
                     .currentLocation(newLocation)
                     .destination(position.getDestination())
-                    .speedKmPerHour(position.getSpeedKmPerHour())
+                    .speedKmPerHour(generateSpeedKmPerHour())
                     .timestamp(now)
                     .build());
         }
+    }
+
+    private BigDecimal generateSpeedKmPerHour() {
+        return new BigDecimal(MINIMUM_SPED_KM_H + random.nextInt(MAXIMUM_SPED_KM_H - MINIMUM_SPED_KM_H + 1));
     }
 }
