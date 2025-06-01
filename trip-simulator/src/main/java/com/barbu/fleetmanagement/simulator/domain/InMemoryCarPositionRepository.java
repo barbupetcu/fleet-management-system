@@ -9,11 +9,11 @@ import java.util.concurrent.ConcurrentHashMap;
 @ApplicationScoped
 public class InMemoryCarPositionRepository implements CarPositionRepository {
 
-    private final Map<Long, CarPosition> activeTrips = new ConcurrentHashMap<>();
+    private final Map<Long, CarPositionDetails> activeTrips = new ConcurrentHashMap<>();
 
     @Override
-    public void save(CarPosition carPosition) {
-        activeTrips.put(carPosition.getTripId(), carPosition);
+    public void save(CarPositionDetails carPositionDetails) {
+        activeTrips.put(carPositionDetails.getTripId(), carPositionDetails);
     }
 
     @Override
@@ -22,7 +22,7 @@ public class InMemoryCarPositionRepository implements CarPositionRepository {
     }
 
     @Override
-    public Optional<CarPosition> findByTripId(Long tripId) {
+    public Optional<CarPositionDetails> findByTripId(Long tripId) {
         return Optional.ofNullable(activeTrips.get(tripId));
     }
 }

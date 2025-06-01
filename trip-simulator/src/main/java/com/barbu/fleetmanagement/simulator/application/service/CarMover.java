@@ -2,7 +2,7 @@ package com.barbu.fleetmanagement.simulator.application.service;
 
 import com.barbu.fleetmanagement.simulator.api.consumer.model.Location;
 import com.barbu.fleetmanagement.simulator.api.consumer.model.Trip;
-import com.barbu.fleetmanagement.simulator.domain.CarPosition;
+import com.barbu.fleetmanagement.simulator.domain.CarPositionDetails;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,8 +25,8 @@ public class CarMover {
 
     private final GeoCalculator geoCalculator;
 
-    public CarPosition moveToInitialPosition(Trip trip) {
-        return CarPosition.builder()
+    public CarPositionDetails moveToInitialPosition(Trip trip) {
+        return CarPositionDetails.builder()
                 .carId(trip.carId())
                 .driverId(trip.driverId())
                 .tripId(trip.id())
@@ -37,7 +37,7 @@ public class CarMover {
                 .build();
     }
 
-    public Optional<CarPosition> move(CarPosition position) {
+    public Optional<CarPositionDetails> move(CarPositionDetails position) {
 
         Instant now = Instant.now();
         Duration elapsed = Duration.between(position.getTimestamp(), now);
@@ -62,7 +62,7 @@ public class CarMover {
         if (completed) {
             return Optional.empty();
         } else {
-            return Optional.of(CarPosition.builder()
+            return Optional.of(CarPositionDetails.builder()
                     .carId(position.getCarId())
                     .driverId(position.getDriverId())
                     .tripId(position.getTripId())
