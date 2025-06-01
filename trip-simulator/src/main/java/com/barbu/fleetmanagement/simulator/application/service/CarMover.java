@@ -21,8 +21,8 @@ public class CarMover {
 
 
     private final static Random random = new Random();
-    private final static int MINIMUM_SPED_KM_H = 10;
-    private final static int MAXIMUM_SPED_KM_H = 100;
+    private final static int MINIMUM_SPED_KM_H = 60;
+    private final static int MAXIMUM_SPED_KM_H = 80;
 
     private final GeoCalculator geoCalculator;
 

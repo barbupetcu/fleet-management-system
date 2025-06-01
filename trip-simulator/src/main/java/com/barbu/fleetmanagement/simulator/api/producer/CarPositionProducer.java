@@ -29,7 +29,7 @@ public class CarPositionProducer {
         Headers headers = new RecordHeaders();
         headers.add("eventType", "position.updated".getBytes());
         OutgoingKafkaRecordMetadata<String> metadata = OutgoingKafkaRecordMetadata.<String> builder()
-                .withKey(carPositionDetails.getDriverId().toString())
+                .withKey(carPositionDetails.getTripId().toString())
                 .withHeaders(headers)
                 .build();
         carPositionEmitter.send(Message.of(carPosition).addMetadata(metadata));

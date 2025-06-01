@@ -11,6 +11,7 @@
     <module>fleet-manager</module>
     <module>trip-simulator</module>
     <module>common</module>
+    <module>penalty-points-calculator</module>
   </modules>
 
   <properties>

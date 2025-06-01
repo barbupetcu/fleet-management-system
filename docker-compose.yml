@@ -86,6 +86,21 @@ services:
     networks:
       - fleet-network
 
+#  penalty-points-calculator:
+#    build:
+#      context: ./penalty-points-calculator
+#      dockerfile: src/main/docker/Dockerfile.jvm
+#    container_name: penalty-points-calculator-service
+#    depends_on:
+#      - kafka
+#    ports:
+#      - "8082:8082"
+#    environment:
+#      QUARKUS_KAFKA-STREAMS_BOOTSTRAP-SERVERS: kafka:9092
+#      QUARKUS_HTTP_PORT: 8082
+#    networks:
+#      - fleet-network
+
 volumes:
   postgres-data:
 
